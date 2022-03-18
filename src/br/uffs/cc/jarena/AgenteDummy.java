@@ -1,57 +1,131 @@
 /**
- * Um exemplo de agente que anda aleatoriamente na arena. Esse agente pode ser usado como base
- * para a criação de um agente mais esperto. Para mais informações sobre métodos que podem
- * ser utilizados, veja a classe Agente.java.
- * 
- * Fernando Bevilacqua <fernando.bevilacqua@uffs.edu.br>
+ * Estudante: Pedro Zawadzki Dutra
  */
 
 package br.uffs.cc.jarena;
 
-public class AgenteDummy extends Agente
-{
+public class AgenteDummy extends Agente {
+	static int contador = 0;
+
+	private int agentId;
+
+	private int distanciaGrupo;
+	private int[] msgs;
+	private int init;
+
 	public AgenteDummy(Integer x, Integer y, Integer energia) {
-		super(x, y, energia);
-		setDirecao(geraDirecaoAleatoria());
+		super(Constants.LARGURA_MAPA / 2, Constants.ALTURA_MAPA / 2, energia);
+		agentId = contador++;
+		distanciaGrupo = 4;
+
+		msgs = new int[] { 0, 0, 0, 0 };
+
+		init = distanciaGrupo;
 	}
-	
+
 	public void pensa() {
-		// Se não conseguimos nos mover para a direção atual, quer dizer
-		// que chegamos no final do mapa ou existe algo bloqueando nosso
-		// caminho.
-		if(!podeMoverPara(getDirecao())) {
-			// Como não conseguimos nos mover, vamos escolher uma direção
-			// nova.
-			setDirecao(geraDirecaoAleatoria());
+		System.out.println(toString());
+
+		if (init-- > 0) {
+			setDirecao(getFuncao());
+			return;
+		} else if (init-- == -1) {
+			setDirecao(getGrupo() + 1);
+			return;
 		}
-		
-		// Se o agente conseguie se dividir (tem energia) e se o total de energia
-		// do agente é maior que 400, nos dividimos. O agente filho terá a metade
-		// da nossa energia atual.
-		if(podeDividir() && getEnergia() >= 800) {
-			divide();
+
+		if (bateuNaMargem(getDirecao())) {
+			setDirecao(inverteDirecao(getDirecao()));
+			return;
 		}
+
+		int soma = msgs[0] + msgs[1] + msgs[2] + msgs[3];
+		if (soma == 4) {
+			para();
+		} else if (soma == 3) {
+			setDirecao(inverteDirecao(indexOf(msgs, 0) + 1));
+		} else if (soma == 1 || soma == 2) {
+			setDirecao(indexOf(msgs, 1) + 1);
+		} else if (soma == 0 && isParado()) {
+			setDirecao(getGrupo());
+		}
+
+		msgs = new int[] { 0, 0, 0, 0 };
 	}
-	
+
 	public void recebeuEnergia() {
-		// Invocado sempre que o agente recebe energia.
+		enviaMensagem("ENERGIA " + getGrupo() + " " + getFuncao());
 	}
-	
+
 	public void tomouDano(int energiaRestanteInimigo) {
-		// Invocado quando o agente está na mesma posição que um agente inimigo
-		// e eles estão batalhando (ambos tomam dano).
 	}
-	
+
 	public void ganhouCombate() {
-		// Invocado se estamos batalhando e nosso inimigo morreu.
 	}
-	
+
 	public void recebeuMensagem(String msg) {
-		// Invocado sempre que um agente aliado próximo envia uma mensagem.
+		String[] decode = msg.split(" ");
+		String msgType = decode[0];
+
+		if (msgType.equals("ENERGIA")) {
+			int senderGrupo = Integer.parseInt(decode[1]);
+
+			if (senderGrupo == getGrupo()) {
+				int senderFunc = Integer.parseInt(decode[2]);
+				msgs[senderFunc - 1] = 1;
+			}
+		}
 	}
-	
+
 	public String getEquipe() {
-		// Definimos que o nome da equipe do agente é "Fernando".
-		return "Fernando";
+		return "fedido";
+	}
+
+	private int getFuncao() {
+		return (agentId % 4) + 1;
+	}
+
+	private int getGrupo() {
+		return agentId / 4;
+	}
+
+	private int inverteDirecao(int direcao) {
+		return direcao + (direcao % 2 == 0 ? -1 : 1);
+	}
+
+	public int indexOf(int[] array, int value) {
+		for (int i = 0; i < array.length; i++)
+			if (array[i] == value)
+				return i;
+		return -1;
+	}
+
+	public boolean bateuNaMargem(int direcao) {
+		int offset = distanciaGrupo * 5;
+
+		if (!podeMoverPara(direcao)) {
+			return true;
+		}
+
+		if (direcao == getFuncao()) {
+			offset = offset * 0;
+		} else if (getFuncao() == inverteDirecao(direcao)) {
+			offset = offset * 2;
+		} else {
+			offset = offset * 1;
+		}
+
+		switch (direcao) {
+			case DIREITA:
+				return getX() + offset >= Constants.LARGURA_MAPA;
+			case ESQUERDA:
+				return getX() - offset <= 0;
+			case CIMA:
+				return getY() - offset <= 0;
+			case BAIXO:
+				return getY() + offset >= Constants.ALTURA_MAPA;
+			default:
+				return false;
+		}
 	}
 }
