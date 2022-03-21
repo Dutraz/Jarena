@@ -1,10 +1,11 @@
 /**
- * Estudante: Pedro Zawadzki Dutra
+ * Estudantes: Pedro Zawadzki Dutra e Matheus Vieira Santos
  */
 
 package br.uffs.cc.jarena;
 
 public class AgenteDummy extends Agente {
+	static final String nomeEquipeAgente = "fedido";
 	static int contador = 0;
 
 	private int agentId;
@@ -78,7 +79,7 @@ public class AgenteDummy extends Agente {
 	}
 
 	public String getEquipe() {
-		return "fedido";
+		return nomeEquipeAgente;
 	}
 
 	private int getFuncao() {
@@ -107,14 +108,22 @@ public class AgenteDummy extends Agente {
 			return true;
 		}
 
+		offset = carregaOffset(direcao, offset);
+
+		return mudaDirecao(direcao, offset);
+	}
+
+	public int carregaOffset(int direcao, int offset){
 		if (direcao == getFuncao()) {
-			offset = offset * 0;
+			offset = 0;
 		} else if (getFuncao() == inverteDirecao(direcao)) {
 			offset = offset * 2;
-		} else {
-			offset = offset * 1;
 		}
 
+		return offset;
+	}
+
+	public boolean mudaDirecao(int direcao, int offset){
 		switch (direcao) {
 			case DIREITA:
 				return getX() + offset >= Constants.LARGURA_MAPA;
