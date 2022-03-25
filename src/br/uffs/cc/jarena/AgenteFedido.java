@@ -25,8 +25,6 @@ public class AgenteFedido extends Agente {
 	}
 
 	public void pensa() {
-		System.out.println(toString());
-
 		if (init-- > 0) {
 			setDirecao(getFuncao());
 			return;
