@@ -4,8 +4,8 @@
 
 package br.uffs.cc.jarena;
 
-public class AgenteDummy extends Agente {
-	static final String nomeEquipeAgente = "fedido";
+public class AgenteFedido extends Agente {
+	static final String nomeEquipeAgente = "Fedido";
 	static int contador = 0;
 
 	private int agentId;
@@ -14,7 +14,7 @@ public class AgenteDummy extends Agente {
 	private int[] msgs;
 	private int init;
 
-	public AgenteDummy(Integer x, Integer y, Integer energia) {
+	public AgenteFedido(Integer x, Integer y, Integer energia) {
 		super(Constants.LARGURA_MAPA / 2, Constants.ALTURA_MAPA / 2, energia);
 		agentId = contador++;
 		distanciaGrupo = 4;
